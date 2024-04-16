@@ -1,0 +1,53 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    defaultConfig {
+        applicationId 'com.activision.boz'
+        minSdkVersion 26
+        targetSdkVersion 33
+        versionCode 1045108
+        versionName "1.0.8"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.debug
+        multiDexEnabled false
+    }
+
+    buildTypes {
+        debug {
+            ndk {
+                abiFilters "armeabi"
+            }
+        }
+        release {
+            ndk {
+                abiFilters "armeabi"
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    namespace 'com.activision.boz'
+    dependenciesInfo {
+        includeInApk true
+        includeInBundle true
+    }
+    compileSdk 33
+    lint {
+        abortOnError false
+    }
+}
+
+dependencies {
+    // some dependencies
+    implementation files('src\\main\\lib\\bolts-android-1.1.2.jar')
+    implementation 'junit:junit:4.12'
+}
