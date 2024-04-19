@@ -1,2 +1,2 @@
-rootProject.name = 'CODBOZ'
+rootProject.name = 'BOZ'
 include ':app'

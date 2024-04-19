@@ -1,3 +1,5 @@
 .gradle
 .idea
 app/build
+/keystore
+/app/release

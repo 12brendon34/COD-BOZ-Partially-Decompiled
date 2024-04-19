@@ -3,12 +3,16 @@ plugins {
 }
 
 android {
+    aaptOptions {
+        noCompress 'dz'
+        noCompress 's3e'
+    }
     defaultConfig {
         applicationId 'com.activision.boz'
-        minSdkVersion 26
+        minSdkVersion 10
         targetSdkVersion 33
         versionCode 1045108
-        versionName "1.0.8"
+        versionName "1.0.8.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug
@@ -20,13 +24,16 @@ android {
             ndk {
                 abiFilters "armeabi"
             }
+            signingConfig signingConfigs.debug
+            multiDexEnabled false
         }
         release {
             ndk {
                 abiFilters "armeabi"
             }
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            multiDexEnabled false
         }
     }
 
