@@ -3,75 +3,74 @@ plugins {
 }
 
 android {
+    namespace 'com.activision.boz'
+
+    def versionPropsFile = file('version.properties')
+    if (!versionPropsFile.canRead()) {
+        throw new GradleException("Could not read version.properties!")
+    }
+
+    Properties versionProps = new Properties()
+    versionProps.load(new FileInputStream(versionPropsFile))
+
+    def code = versionProps['VERSION_CODE'].toInteger() + 1
+    versionProps['VERSION_CODE']=code.toString()
+    versionProps.store(versionPropsFile.newWriter(), null)
+
+    defaultConfig {
+        minSdk 22
+        targetSdk 34
+        versionName "1.0.8.1"
+        versionNameSuffix 'dec'
+        versionCode code
+        applicationId 'com.activision.boz'
+        signingConfig signingConfigs.debug
+        multiDexEnabled false
+    }
+
     aaptOptions {
         noCompress 'dz'
         noCompress 's3e'
     }
 
-    def versionPropsFile = file('version.properties')
-
-    if (versionPropsFile.canRead()) {
-        def Properties versionProps = new Properties()
-
-        versionProps.load(new FileInputStream(versionPropsFile))
-
-        def code = versionProps['VERSION_CODE'].toInteger() + 1
-
-        versionProps['VERSION_CODE']=code.toString()
-        versionProps.store(versionPropsFile.newWriter(), null)
-
-        defaultConfig {
-            applicationId 'com.activision.boz'
-            versionCode code
-            versionName "1.0.8.1"
-            minSdkVersion 14
-            targetSdkVersion 33
-
-            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-            signingConfig signingConfigs.debug
-            multiDexEnabled false
-        }
-    }
-    else {
-        throw new GradleException("Could not read version.properties!")
-    }
-
     buildTypes {
         debug {
             ndk {
-                abiFilters "armeabi"
+                abiFilters "armeabi-v7a" //until I can figure out how to remove or replace libisdevice.so
             }
-            signingConfig signingConfigs.debug
-            multiDexEnabled false
         }
         release {
             ndk {
-                abiFilters "armeabi"
+                abiFilters "armeabi-v7a"
             }
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            multiDexEnabled false
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
-    namespace 'com.activision.boz'
     dependenciesInfo {
         includeInApk true
         includeInBundle true
     }
-    compileSdk 33
+
     lint {
         abortOnError false
     }
+
+    compileSdk 34
+    ndkVersion '25.1.8937393'
 }
 
 dependencies {
     // some dependencies
-    implementation files('src\\main\\lib\\bolts-android-1.1.2.jar')
-    implementation 'junit:junit:4.12'
+    debugImplementation files('src/main/lib/s3e_debug.jar')
+    releaseImplementation files('src/main/lib/s3e_release.jar')
+
+    implementation files('src/main/lib/s3e_resources.jar')
+    implementation files('src/main/lib/bolts-android-1.1.2.jar')
 }
