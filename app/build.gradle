@@ -5,6 +5,11 @@ plugins {
 android {
     namespace 'com.activision.boz'
 
+    aaptOptions {
+        noCompress 'dz'
+        noCompress 's3e'
+    }
+
     def versionPropsFile = file('version.properties')
     if (!versionPropsFile.canRead()) {
         throw new GradleException("Could not read version.properties!")
@@ -28,15 +33,10 @@ android {
         multiDexEnabled false
     }
 
-    aaptOptions {
-        noCompress 'dz'
-        noCompress 's3e'
-    }
-
     buildTypes {
         debug {
             ndk {
-                abiFilters "armeabi-v7a" //until I can figure out how to remove or replace libisdevice.so
+                abiFilters "armeabi-v7a"
             }
         }
         release {
