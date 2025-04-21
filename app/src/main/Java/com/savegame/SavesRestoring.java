@@ -6,6 +6,7 @@ import android.content.res.AssetManager;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -14,208 +15,114 @@ import java.util.zip.ZipInputStream;
 
 public final class SavesRestoring extends Activity {
 
-   public static void DoSmth(Context var0) {
+   public static void DoSmth(Context context) {
       try {
-         SmartDataRestoreForYou(var0, var0.getAssets(), var0.getPackageName());
-      } catch (Exception var2) {
-         Log.e(var0.getPackageName() + ":savemessages", "Message: " + var2.getMessage());
-         var2.printStackTrace();
+         SmartDataRestoreForYou(context, context.getAssets(), context.getPackageName());
+      } catch (Exception e) {
+         String tag = context.getPackageName() + ":savemessages";
+         Log.e(tag, "Message: " + e.getMessage(), e);
       }
-
    }
 
-   public static boolean ExistsInArray(String[] var0, String var1) {
-      int var2 = 0;
-
-      boolean var3;
-      while(true) {
-         if (var2 >= var0.length) {
-            var3 = false;
-            break;
+   public static boolean ExistsInArray(String[] array, String target) {
+      for (String item : array) {
+         if (item.contains(target)) {
+            return true;
          }
-
-         if (var0[var2].contains(var1)) {
-            var3 = true;
-            break;
-         }
-
-         ++var2;
       }
-
-      return var3;
-   }
-   /*
-   private static String BXPwSmxuPW() {
-
-      return Character.toString('m');
+      return false;
    }
 
-   private static String EOYFnuReNsHy() {
+   private static void SmartDataRestoreForYou(Context context, AssetManager assets, String packageName) throws Exception {
+      final String prefsName = "savegame";
+      final String logTag = packageName + ":savemessages";
 
-      return Character.toString('u');
-   }
-   private static String EOYFnuReNsHy() {
+      if (!context.getSharedPreferences(prefsName, MODE_PRIVATE).getBoolean("notfirst", false)) {
+         Log.i(logTag, "SmDR: Starting...");
+         context.getSharedPreferences(prefsName, MODE_PRIVATE)
+                 .edit()
+                 .putBoolean("notfirst", true)
+                 .apply();
 
-      return Character.toString('u');
-   }
+         String[] assetFiles = assets.list("");
 
-   private static String JpkKyIAiknMv() {
-      return Character.toString('o');
-   }
-
-   private static String TpYcPKxx() {
-
-      return Character.toString('t');
-   }
-
-   private static String bcNCqJaDmGpRY() {
-
-      return Character.toString('o');
-   }
-
-   private static String dHJUXuApj() {
-
-      return Character.toString('B');
-   }
-
-   private static String eiLlYWJly() {
-
-      return Character.toString('k');
-   }
-
-   private static String fyjHuHkW() {
-
-      return Character.toString('u');
-   }
-
-   private static String jrOjGYk() {
-
-      return Character.toString('k');
-   }
-
-   private static String oxkjAWcOXTL() {
-
-      return Character.toString('a');
-   }
-
-   private static String sBklbFcSb() {
-
-      return Character.toString(' ');
-   }
-
-   private static String sNVNqe() {
-
-      return Character.toString('y');
-   }
-   private static void wPdauIdcaW(Context var0) {
-   }
-
-   private static void wPdauIdcaW(Context var0, int var1) {
-   }
-   */
-
-   private static void SmartDataRestoreForYou(Context var0, AssetManager var1, String var2) throws Exception {
-      if (!var0.getSharedPreferences("savegame", 0).getBoolean("notfirst", false)) {
-         var0.getSharedPreferences("savegame", 0).edit().putBoolean("notfirst", true).commit();
-         var2 = var2 + ":savemessages";
-         Log.i(var2, "SmDR: Starting...");
-         var0.getSharedPreferences("savegame", 0).edit().putBoolean("notfirst", true).commit();
-         String[] var4 = var1.list("");
-
-         for(int var3 = 0; var3 < var4.length; ++var3) {
-            Log.i(var2, "ListFiles[" + var3 + "] = " + var4[var3]);
+         for (int i = 0; i < assetFiles.length; i++) {
+            Log.i(logTag, "ListFiles[" + i + "] = " + assetFiles[i]);
          }
 
-         StringBuilder var5;
-         if (ExistsInArray(var4, "data.save")) {
-            Toast.makeText(var0, "Restoring save...", Toast.LENGTH_SHORT).show();
-
-            try {
-               Log.i(var2, "data.save : Restoring...");
-               InputStream var6 = var1.open("data.save");
-               var5 = new StringBuilder();
-               unZipIt(var6, var5.append("/data/data/").append(var0.getPackageName()).toString());
-               Log.i(var2, "data.save: Successfully restored");
-            } catch (Exception var9) {
-               Log.e(var2, "data.save: Message: " + var9.getMessage());
-               Toast.makeText(var0, "Can't restore save", Toast.LENGTH_LONG).show();
+         // Restore internal save data
+         if (ExistsInArray(assetFiles, "data.save")) {
+            Toast.makeText(context, "Restoring save...", Toast.LENGTH_SHORT).show();
+            try (InputStream inputStream = assets.open("data.save")) {
+               String targetPath = context.getFilesDir().getPath(); // Safer internal path
+               Log.i(logTag, "data.save: Restoring to " + targetPath);
+               unZipIt(inputStream, targetPath);
+               Log.i(logTag, "data.save: Successfully restored");
+            } catch (Exception e) {
+               Log.e(logTag, "data.save: Message: " + e.getMessage(), e);
+               Toast.makeText(context, "Can't restore save", Toast.LENGTH_LONG).show();
             }
          }
 
-         String var12;
-         if (ExistsInArray(var4, "extobb.save")) {
-            Toast.makeText(var0, "Restoring cache...", Toast.LENGTH_SHORT).show();
 
-            try {
-               Log.i(var2, "extobb.save: Restoring...");
-               var5 = new StringBuilder();
-               var12 = var5.append(var0.getObbDir().getAbsolutePath()).append("/").toString();
-               unZipIt(var1.open("extobb.save"), var12);
-               Log.i(var2, "extobb.save: Successfully restored");
-            } catch (Exception var8) {
-               Log.e(var2, "extobb.save: Message: " + var8.getMessage());
-               Toast.makeText(var0, "Can't restore external cache", Toast.LENGTH_LONG).show();
+         // Restore OBB cache
+         if (ExistsInArray(assetFiles, "extobb.save")) {
+            Toast.makeText(context, "Restoring cache...", Toast.LENGTH_SHORT).show();
+            try (InputStream inputStream = assets.open("extobb.save")) {
+               String targetPath = context.getObbDir().getAbsolutePath() + "/";
+               Log.i(logTag, "extobb.save: Restoring...");
+               unZipIt(inputStream, targetPath);
+               Log.i(logTag, "extobb.save: Successfully restored");
+            } catch (Exception e) {
+               Log.e(logTag, "extobb.save: Message: " + e.getMessage(), e);
+               Toast.makeText(context, "Can't restore external cache", Toast.LENGTH_LONG).show();
             }
          }
 
-         if (ExistsInArray(var4, "extdata.save")) {
-            Toast.makeText(var0, "Restoring external data...", Toast.LENGTH_SHORT).show();
-
-            try {
-               Log.i(var2, "extdata.save: Restoring...");
-               StringBuilder var10 = new StringBuilder();
-               var12 = var10.append(Environment.getExternalStorageDirectory()).append("/Android/data/").append(var0.getPackageName()).append("/").toString();
-               File var11 = new File(var12);
-               var11.mkdirs();
-               unZipIt(var1.open("extdata.save"), var12);
-               Log.i(var2, "extdata.save: Successfully restored");
-            } catch (Exception var7) {
-               Log.e(var2, "extdata.save: Message: " + var7.getMessage());
-               Toast.makeText(var0, "Can't restore external data", Toast.LENGTH_LONG).show();
+         // Restore external data
+         if (ExistsInArray(assetFiles, "extdata.save")) {
+            Toast.makeText(context, "Restoring external data...", Toast.LENGTH_SHORT).show();
+            try (InputStream inputStream = assets.open("extdata.save")) {
+               String targetPath = Environment.getExternalStorageDirectory() + "/Android/data/" + packageName + "/";
+               new File(targetPath).mkdirs();
+               Log.i(logTag, "extdata.save: Restoring...");
+               unZipIt(inputStream, targetPath);
+               Log.i(logTag, "extdata.save: Successfully restored");
+            } catch (Exception e) {
+               Log.e(logTag, "extdata.save: Message: " + e.getMessage(), e);
+               Toast.makeText(context, "Can't restore external data", Toast.LENGTH_LONG).show();
             }
          }
 
-         Log.i(var2, "Restoring completed");
-         Toast.makeText(var0, "Restoring completed", Toast.LENGTH_LONG).show();
+         Log.i(logTag, "Restoring completed");
+         Toast.makeText(context, "Restoring completed", Toast.LENGTH_LONG).show();
       }
-
    }
 
-   private static void unZipIt(InputStream var0, String var1) throws Exception {
-      ZipInputStream var4 = new ZipInputStream(var0);
-      byte[] var5 = new byte[1024];
-      (new File(var1)).mkdirs();
-      ZipEntry var6 = var4.getNextEntry();
-      while (true) {
-         while (var6 != null) {
-            if (var6.isDirectory()) {
-               var6 = var4.getNextEntry();
-            } else {
-               int var3 = var6.getName().lastIndexOf(47);
-               int var2 = var3;
-               if (var3 < 0) {
-                  var2 = 0;
-               }
+   private static void unZipIt(InputStream inputStream, String targetDirectory) throws Exception {
+      try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
+         byte[] buffer = new byte[1024];
+         new File(targetDirectory).mkdirs();
 
-               (new File(var1 + "/" + var6.getName().substring(0, var2))).mkdirs();
-               FileOutputStream var7 = new FileOutputStream(new File(var1 + "/" + var6.getName()), false);
+         ZipEntry entry;
+         while ((entry = zipInputStream.getNextEntry()) != null) {
+            if (entry.isDirectory()) {
+               continue;
+            }
 
-               while (true) {
-                  var2 = var4.read(var5);
-                  if (var2 <= 0) {
-                     var7.close();
-                     var6 = var4.getNextEntry();
-                     break;
-                  }
+            File outFile = new File(targetDirectory, entry.getName());
+            File parentDir = outFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+               parentDir.mkdirs();
+            }
 
-                  var7.write(var5, 0, var2);
+            try (FileOutputStream fileOut = new FileOutputStream(outFile)) {
+               int length;
+               while ((length = zipInputStream.read(buffer)) > 0) {
+                  fileOut.write(buffer, 0, length);
                }
             }
          }
-
-         var4.closeEntry();
-         var4.close();
-         return;
       }
    }
 }

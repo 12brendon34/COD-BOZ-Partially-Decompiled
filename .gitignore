@@ -1,6 +1,7 @@
 .gradle
 .idea
 app/build
+build
 /keystore
 /app/release
 /OBB DAT

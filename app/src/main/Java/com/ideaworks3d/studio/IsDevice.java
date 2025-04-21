@@ -1,133 +1,114 @@
 package com.ideaworks3d.studio;
 
-import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.os.StatFs;
 import android.util.DisplayMetrics;
 import android.util.Log;
+
 import com.ideaworks3d.marmalade.LoaderActivity;
+
 import java.io.File;
+
 class IsDevice implements Cloneable {
     public static final String TAG = "IsDevice";
-    public static IsDevice s_Instance = null;
-    final int eGeneric = 1;
-    final int eSmartphone = 2;
-    final int eTablet = 3;
-    private boolean m_IsActivated = false;
-    public int TabletThreshold = 461;
-    public DisplayMetrics m_DeviceMetrics = new DisplayMetrics();
-    private File m_CurrentDirectory = Environment.getExternalStorageDirectory();
-    private StatFs m_StatFs = new StatFs(this.m_CurrentDirectory.getAbsolutePath());
-    public native void IsDeviceKeyCallback(int i);
+    private static IsDevice instance = null;
 
-    public String GetMainExpansionFilename() {
-        LoaderActivity loaderActivity = LoaderActivity.m_Activity;
-        try {
-            return "main." + loaderActivity.getPackageManager().getPackageInfo(loaderActivity.getPackageName(), 0).versionCode + "." + loaderActivity.getPackageName() + ".obb";
-        } catch (PackageManager.NameNotFoundException e) {
-            return "";
-        }
-    }
+    private boolean isActivated = false;
+    public int tabletThreshold = 461;
 
-    public int IsDeviceGetMainExpansionFileSize() {
-        String str = new String(GetExpansionPath() + GetMainExpansionFilename());
-        Log.i(TAG, "IsDeviceGetMainExpansionFileSize value " + str);
-        File file = new File(str);
-        if (!file.exists()) {
-            return 0;
-        }
-        Log.i(TAG, "IsDeviceGetMainExpansionFileSize size " + (file.length() / 1024));
-        return ((int) file.length()) / 1024;
-    }
+    public DisplayMetrics deviceMetrics = new DisplayMetrics();
+
+    private final File externalStorageDir = Environment.getExternalStorageDirectory();
+    private final StatFs statFs = new StatFs(externalStorageDir.getAbsolutePath());
 
     public static final String EXP_PATH = File.separator + "Android" + File.separator + "obb" + File.separator;
 
-    public String GetExpansionPath() {
-        String str = Environment.getExternalStorageDirectory().toString() + EXP_PATH + LoaderActivity.m_Activity.getPackageName() + File.separator;
-        Log.i(TAG, "Expansion Path: " + str);
-        return str;
+    private IsDevice() {
+        instance = this;
     }
 
-    private IsDevice() {
-        s_Instance = this;
+    public static synchronized IsDevice GetInstance() {
+        if (instance == null) {
+            instance = new IsDevice();
+        }
+        return instance;
+    }
+
+    public native void IsDeviceKeyCallback(int keyCode);
+
+    public boolean IsActivated() {
+        return this.isActivated;
+    }
+
+    // Called by Marmalade's libIsDevice.so
+    public String GetExpansionPath() {
+        String path = Environment.getExternalStorageDirectory() +
+                EXP_PATH +
+                LoaderActivity.m_Activity.getPackageName() +
+                File.separator;
+        Log.i(TAG, "Expansion Path: " + path);
+        return path;
+    }
+
+    public void Activate() {
+        this.isActivated = true;
+    }
+
+    public int IsDeviceSetTabletThreshold(int threshold) {
+        this.tabletThreshold = threshold;
+        return this.tabletThreshold;
+    }
+
+    public int IsDeviceGetDisplayType() {
+        LoaderActivity.m_Activity.getWindowManager()
+                .getDefaultDisplay()
+                .getMetrics(this.deviceMetrics);
+
+        float widthInches = this.deviceMetrics.widthPixels / this.deviceMetrics.xdpi;
+        float heightInches = this.deviceMetrics.heightPixels / this.deviceMetrics.ydpi;
+        int screenSize = (int) (widthInches * widthInches + heightInches * heightInches);
+
+        if (screenSize >= this.tabletThreshold) {
+            return 3; // Tablet
+        } else if (screenSize > 0) {
+            return 2; // Phone
+        } else {
+            return 1; // Unknown or small display
+        }
+    }
+
+    public String[] IsDeviceGetExternalResources(int param1, int param2) {
+        // Placeholder return; actual implementation may vary
+        return new String[]{"stub", "stub"};
+    }
+
+    public int IsDeviceGetAvailableBlocks() {
+        statFs.restat(externalStorageDir.getAbsolutePath());
+        return statFs.getAvailableBlocks();
+    }
+
+    public int IsDeviceGetBlockCount() {
+        statFs.restat(externalStorageDir.getAbsolutePath());
+        return statFs.getBlockCount();
+    }
+
+    public int IsDeviceGetBlockSize() {
+        statFs.restat(externalStorageDir.getAbsolutePath());
+        return statFs.getBlockSize();
+    }
+
+    public int IsDeviceGetFreeBlocks() {
+        statFs.restat(externalStorageDir.getAbsolutePath());
+        return statFs.getFreeBlocks();
+    }
+
+    public String IsDeviceGetAbsolutePath() {
+        String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/";
+        Log.v(TAG, "AbsolutePath returning: " + absolutePath);
+        return absolutePath;
     }
 
     public Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException();
-    }
-
-    public static synchronized IsDevice GetInstance() {
-        IsDevice isDevice;
-        synchronized (IsDevice.class) {
-            if (s_Instance == null) {
-                s_Instance = new IsDevice();
-            }
-            isDevice = s_Instance;
-        }
-        return isDevice;
-    }
-
-    public boolean IsActivated() {
-        return this.m_IsActivated;
-    }
-
-    public void Activate() {
-        this.m_IsActivated = true;
-    }
-
-    public int IsDeviceSetTabletThreshold(int i) {
-        this.TabletThreshold = i;
-        return this.TabletThreshold;
-    }
-
-    public int IsDeviceGetDisplayType() {
-        LoaderActivity.m_Activity.getWindowManager().getDefaultDisplay().getMetrics(this.m_DeviceMetrics);
-        float f = this.m_DeviceMetrics.widthPixels / this.m_DeviceMetrics.xdpi;
-        float f2 = this.m_DeviceMetrics.heightPixels / this.m_DeviceMetrics.ydpi;
-        int i = (int) (f * f * f2 * f2);
-        if (i >= this.TabletThreshold) {
-            return 3;
-        }
-        if (i > 0) {
-            return 2;
-        }
-        return 1;
-    }
-
-    public int IsDeviceGetFreeStorage() {
-        return -1;
-    }
-
-    public String IsDeviceGetAbsolutePath() {
-        String str = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/");
-        Log.v(TAG, "AbsolutePath returning: " + str);
-        return str;
-    }
-
-    public int IsDeviceGetAvailableBlocks() {
-        this.m_StatFs.restat(this.m_CurrentDirectory.getAbsolutePath());
-        return this.m_StatFs.getAvailableBlocks();
-    }
-
-    public int IsDeviceGetBlockCount() {
-        this.m_StatFs.restat(this.m_CurrentDirectory.getAbsolutePath());
-        return this.m_StatFs.getBlockCount();
-    }
-
-    public int IsDeviceGetBlockSize() {
-        this.m_StatFs.restat(this.m_CurrentDirectory.getAbsolutePath());
-        return this.m_StatFs.getBlockSize();
-    }
-
-    public int IsDeviceGetFreeBlocks() {
-        this.m_StatFs.restat(this.m_CurrentDirectory.getAbsolutePath());
-        return this.m_StatFs.getFreeBlocks();
-    }
-
-    public void IsDeviceSetPublicKey(String str) {
-    }
-
-    public String[] IsDeviceGetExternalResources(int i, int i2) {
-        return new String[]{"stub", "stub"};
     }
 }
