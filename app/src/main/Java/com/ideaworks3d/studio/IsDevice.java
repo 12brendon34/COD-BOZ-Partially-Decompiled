@@ -7,7 +7,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import com.ideaworks3d.marmalade.LoaderActivity;
 import java.io.File;
-/* loaded from: classes.dex */
 class IsDevice implements Cloneable {
     public static final String TAG = "IsDevice";
     public static IsDevice s_Instance = null;

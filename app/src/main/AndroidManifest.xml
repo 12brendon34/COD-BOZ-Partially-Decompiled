@@ -1,17 +1,40 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?><manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application android:icon="@mipmap/ic_launcher" android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-        <activity android:configChanges="keyboardHidden|locale|orientation|screenSize" android:label="@string/app_name" android:launchMode="singleTask" android:name=".Main"
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.activision.boz"
+    android:installLocation="auto">
+
+    <!-- Permissions Pre Android 13 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
+
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+
+        <activity
+            android:name=".Main"
+            android:launchMode="singleTask"
+            android:configChanges="keyboardHidden|locale|orientation|screenSize"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <provider android:authorities="zzzz3cbc70bb20f852f289fb0ebc606135c5.VFSProvider" android:exported="false" android:multiprocess="true" android:name="com.ideaworks3d.marmalade.VFSProvider"/>
+
+        <provider
+            android:name="com.ideaworks3d.marmalade.VFSProvider"
+            android:authorities="zzzz3cbc70bb20f852f289fb0ebc606135c5.VFSProvider"
+            android:exported="false"
+            android:multiprocess="true" />
     </application>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 </manifest>
