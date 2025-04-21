@@ -3,6 +3,16 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        // Stored in gradle.properties
+        release {
+            storeFile file(RELEASE_STORE_FILE)
+            storePassword RELEASE_STORE_PASSWORD
+            keyPassword RELEASE_KEY_PASSWORD
+            keyAlias RELEASE_KEY_ALIAS
+        }
+    }
+
     namespace 'com.activision.boz'
 
     compileSdk 34
@@ -57,6 +67,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+
+        tasks.withType(JavaCompile).configureEach {
+            options.compilerArgs += ["-Xlint:deprecation"]
+        }
     }
 
     dependenciesInfo {

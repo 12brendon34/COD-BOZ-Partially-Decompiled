@@ -5,3 +5,5 @@ build
 /keystore
 /app/release
 /OBB DAT
+SignKeys
+gradle.properties

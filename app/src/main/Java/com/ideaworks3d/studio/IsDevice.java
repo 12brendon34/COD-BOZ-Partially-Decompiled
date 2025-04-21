@@ -1,13 +1,20 @@
 package com.ideaworks3d.studio;
 
+import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
+import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-import com.ideaworks3d.marmalade.LoaderActivity;
+import android.view.Display;
+import android.view.WindowManager;
+import android.view.WindowMetrics;
 
+import android.content.res.Resources;
 import java.io.File;
+
+import com.ideaworks3d.marmalade.LoaderActivity;
 
 class IsDevice implements Cloneable {
     public static final String TAG = "IsDevice";
@@ -40,7 +47,6 @@ class IsDevice implements Cloneable {
         return this.isActivated;
     }
 
-    // Called by Marmalade's libIsDevice.so
     public String GetExpansionPath() {
         String path = Environment.getExternalStorageDirectory() +
                 EXP_PATH +
@@ -58,14 +64,31 @@ class IsDevice implements Cloneable {
         this.tabletThreshold = threshold;
         return this.tabletThreshold;
     }
-
+    @SuppressWarnings("deprecation")
     public int IsDeviceGetDisplayType() {
-        LoaderActivity.m_Activity.getWindowManager()
-                .getDefaultDisplay()
-                .getMetrics(this.deviceMetrics);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // API 30 and above
+            WindowMetrics metrics = LoaderActivity.m_Activity
+                    .getSystemService(WindowManager.class)
+                    .getCurrentWindowMetrics();
 
-        float widthInches = this.deviceMetrics.widthPixels / this.deviceMetrics.xdpi;
-        float heightInches = this.deviceMetrics.heightPixels / this.deviceMetrics.ydpi;
+            Rect bounds = metrics.getBounds();
+            deviceMetrics.widthPixels = bounds.width();
+            deviceMetrics.heightPixels = bounds.height();
+            deviceMetrics.xdpi = Resources.getSystem().getDisplayMetrics().xdpi;
+            deviceMetrics.ydpi = Resources.getSystem().getDisplayMetrics().ydpi;
+
+        } else {
+            // Below API 30 (fallback)
+            Display display = LoaderActivity.m_Activity
+                    .getWindowManager()
+                    .getDefaultDisplay();
+
+            display.getMetrics(this.deviceMetrics);
+        }
+
+        float widthInches = deviceMetrics.widthPixels / deviceMetrics.xdpi;
+        float heightInches = deviceMetrics.heightPixels / deviceMetrics.ydpi;
         int screenSize = (int) (widthInches * widthInches + heightInches * heightInches);
 
         if (screenSize >= this.tabletThreshold) {
@@ -77,29 +100,29 @@ class IsDevice implements Cloneable {
         }
     }
 
+
     public String[] IsDeviceGetExternalResources(int param1, int param2) {
-        // Placeholder return; actual implementation may vary
         return new String[]{"stub", "stub"};
     }
 
-    public int IsDeviceGetAvailableBlocks() {
+    public long IsDeviceGetAvailableBlocks() {
         statFs.restat(externalStorageDir.getAbsolutePath());
-        return statFs.getAvailableBlocks();
+        return statFs.getAvailableBlocksLong();
     }
 
-    public int IsDeviceGetBlockCount() {
+    public long IsDeviceGetBlockCount() {
         statFs.restat(externalStorageDir.getAbsolutePath());
-        return statFs.getBlockCount();
+        return statFs.getBlockCountLong();
     }
 
-    public int IsDeviceGetBlockSize() {
+    public long IsDeviceGetBlockSize() {
         statFs.restat(externalStorageDir.getAbsolutePath());
-        return statFs.getBlockSize();
+        return statFs.getBlockSizeLong();
     }
 
-    public int IsDeviceGetFreeBlocks() {
+    public long IsDeviceGetFreeBlocks() {
         statFs.restat(externalStorageDir.getAbsolutePath());
-        return statFs.getFreeBlocks();
+        return statFs.getFreeBlocksLong();
     }
 
     public String IsDeviceGetAbsolutePath() {
