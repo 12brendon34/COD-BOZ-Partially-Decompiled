@@ -1,5 +1,7 @@
 package com.ideaworks3d.studio;
 
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
@@ -64,27 +66,11 @@ class IsDevice implements Cloneable {
         this.tabletThreshold = threshold;
         return this.tabletThreshold;
     }
-    @SuppressWarnings("deprecation")
     public int IsDeviceGetDisplayType() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // API 30 and above
-            WindowMetrics metrics = LoaderActivity.m_Activity
-                    .getSystemService(WindowManager.class)
-                    .getCurrentWindowMetrics();
-
-            Rect bounds = metrics.getBounds();
-            deviceMetrics.widthPixels = bounds.width();
-            deviceMetrics.heightPixels = bounds.height();
-            deviceMetrics.xdpi = Resources.getSystem().getDisplayMetrics().xdpi;
-            deviceMetrics.ydpi = Resources.getSystem().getDisplayMetrics().ydpi;
-
+            getDisplayMetricsApi30Plus();
         } else {
-            // Below API 30 (fallback)
-            Display display = LoaderActivity.m_Activity
-                    .getWindowManager()
-                    .getDefaultDisplay();
-
-            display.getMetrics(this.deviceMetrics);
+            getDisplayMetricsLegacy();
         }
 
         float widthInches = deviceMetrics.widthPixels / deviceMetrics.xdpi;
@@ -99,30 +85,55 @@ class IsDevice implements Cloneable {
             return 1; // Unknown or small display
         }
     }
+    @TargetApi(Build.VERSION_CODES.R)
+    private void getDisplayMetricsApi30Plus() {
+        WindowManager wm = (WindowManager) LoaderActivity.m_Activity.getSystemService(Context.WINDOW_SERVICE);
+        if (wm != null) {
+            WindowMetrics metrics = wm.getCurrentWindowMetrics();
+            Rect bounds = metrics.getBounds();
+            deviceMetrics.widthPixels = bounds.width();
+            deviceMetrics.heightPixels = bounds.height();
+            deviceMetrics.xdpi = Resources.getSystem().getDisplayMetrics().xdpi;
+            deviceMetrics.ydpi = Resources.getSystem().getDisplayMetrics().ydpi;
+        }
+    }
 
+    @SuppressWarnings("deprecation")
+    private void getDisplayMetricsLegacy() {
+        Display display = LoaderActivity.m_Activity
+                .getWindowManager()
+                .getDefaultDisplay();
+
+        display.getMetrics(this.deviceMetrics);
+    }
 
     public String[] IsDeviceGetExternalResources(int param1, int param2) {
         return new String[]{"stub", "stub"};
     }
-
-    public long IsDeviceGetAvailableBlocks() {
+    public int IsDeviceGetAvailableBlocks() {
         statFs.restat(externalStorageDir.getAbsolutePath());
-        return statFs.getAvailableBlocksLong();
+        long blocks = statFs.getAvailableBlocksLong();
+
+        //no way it's going over the limit but whatever
+        return (blocks > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) blocks;
     }
 
-    public long IsDeviceGetBlockCount() {
+    public int IsDeviceGetBlockCount() {
         statFs.restat(externalStorageDir.getAbsolutePath());
-        return statFs.getBlockCountLong();
+        long blocks = statFs.getBlockCountLong();
+        return (blocks > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) blocks;
     }
 
-    public long IsDeviceGetBlockSize() {
+    public int IsDeviceGetBlockSize() {
         statFs.restat(externalStorageDir.getAbsolutePath());
-        return statFs.getBlockSizeLong();
+        long size = statFs.getBlockSizeLong();
+        return (size > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) size;
     }
 
-    public long IsDeviceGetFreeBlocks() {
+    public int IsDeviceGetFreeBlocks() {
         statFs.restat(externalStorageDir.getAbsolutePath());
-        return statFs.getFreeBlocksLong();
+        long blocks = statFs.getFreeBlocksLong();
+        return (blocks > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) blocks;
     }
 
     public String IsDeviceGetAbsolutePath() {

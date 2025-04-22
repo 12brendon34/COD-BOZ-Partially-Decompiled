@@ -7,3 +7,6 @@ build
 /OBB DAT
 SignKeys
 gradle.properties
+app/usage.txt
+app/mapping.txt
+/app/debug

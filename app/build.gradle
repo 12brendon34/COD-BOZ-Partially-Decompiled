@@ -40,23 +40,26 @@ android {
         versionName "1.0.8.1"
         versionNameSuffix 'dec'
         multiDexEnabled false
-        signingConfig signingConfigs.debug
     }
 
     buildTypes {
         debug {
+            signingConfig signingConfigs.debug
+
             ndk {
                 //noinspection ChromeOsAbiSupport
                 abiFilters "armeabi-v7a"
             }
         }
         release {
+            signingConfig signingConfigs.release
+
             ndk {
                 //noinspection ChromeOsAbiSupport
                 abiFilters "armeabi-v7a"
             }
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            //not worth enabling
+            minifyEnabled false
         }
     }
 
