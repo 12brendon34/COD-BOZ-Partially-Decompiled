@@ -7,6 +7,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
+import android.view.WindowManager;
 
 import com.ideaworks3d.marmalade.LoaderActivity;
 import com.savegame.SavesRestoring;
@@ -19,6 +20,14 @@ public class IsDeviceActivity extends LoaderActivity {
    @Override
    public void onCreate(Bundle savedInstanceState) {
       SavesRestoring.DoSmth(this);
+
+      // Set cutout mode before super.onCreate or setContentView
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+         WindowManager.LayoutParams lp = getWindow().getAttributes();
+         lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+         getWindow().setAttributes(lp);
+      }
+
       super.onCreate(savedInstanceState);
       m_Activity = this;
    }

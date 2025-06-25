@@ -48,7 +48,7 @@ android {
 
             ndk {
                 //noinspection ChromeOsAbiSupport
-                abiFilters "armeabi-v7a"
+                abiFilters "armeabi-v7a"//, "arm64-v8a"
             }
         }
         release {
@@ -56,7 +56,7 @@ android {
 
             ndk {
                 //noinspection ChromeOsAbiSupport
-                abiFilters "armeabi-v7a"
+                abiFilters "armeabi-v7a"//, "arm64-v8a"
             }
             //not worth enabling
             minifyEnabled false
