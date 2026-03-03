@@ -11,5 +11,12 @@ To contribute to this project or try it out yourself, follow these steps:
 Most likely you won't need "blackops_gles1.dz"
 
 ## Game "OBB" Data
-   - [blackops_atitc.dz](http://cdn-boz-android.callofduty.com/PROD/CODBOZ/1_0_8/blackops_atitc.dz)
    - [blackops_gles1.dz](http://cdn-boz-android.callofduty.com/PROD/CODBOZ/1_0_8/blackops_gles1.dz)
+   - [blackops_dxt.dz](http://cdn-boz-android.callofduty.com/PROD/CODBOZ/1_0_8/blackops_dxt.dz)
+   - [blackops_atitc.dz](http://cdn-boz-android.callofduty.com/PROD/CODBOZ/1_0_8/blackops_atitc.dz)
+   - [blackops_etc.dz](http://cdn-boz-android.callofduty.com/PROD/CODBOZ/1_0_8/blackops_etc.dz)
+<!-- High Res options that just don't exist on the server, There is a copy in the IOS version --> 
+<!--    - [blackops_hires.dz](http://cdn-boz-android.callofduty.com/PROD/CODBOZ/1_0_8/blackops_hires.dz) -->
+<!--    - [blackops_dxt_hires.dz](http://cdn-boz-android.callofduty.com/PROD/CODBOZ/1_0_8/blackops_dxt_hires.dz) -->
+<!--    - [blackops_atitc_hires.dz](http://cdn-boz-android.callofduty.com/PROD/CODBOZ/1_0_8/blackops_atitc_hires.dz) -->
+<!--    - [blackops_etc_hires.dz](http://cdn-boz-android.callofduty.com/PROD/CODBOZ/1_0_8/blackops_etc_hires.dz) -->
