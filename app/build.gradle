@@ -1,3 +1,5 @@
+import android.os.Build
+
 plugins {
     id 'com.android.application'
 }
@@ -15,7 +17,6 @@ android {
 
     namespace = 'com.activision.boz'
 
-    compileSdk = 36
     ndkVersion = '25.1.8937393'
 
     def versionPropsFile = file('version.properties')
@@ -35,9 +36,9 @@ android {
     defaultConfig {
         applicationId 'com.activision.boz'
         minSdk 19
-        targetSdk 36
+        targetSdk Build.VERSION_CODES.CINNAMON_BUN
         versionCode versionProps['VERSION_CODE'].toInteger()
-        versionName "1.0.8.1"
+        versionName "1.0.11.1"
         versionNameSuffix 'dec'
         multiDexEnabled = false
     }
@@ -85,6 +86,10 @@ android {
     lint {
         abortOnError = false
     }
+    compileSdk {
+        version = release(36)
+    }
+    buildToolsVersion '36.0.0'
 }
 
 dependencies {

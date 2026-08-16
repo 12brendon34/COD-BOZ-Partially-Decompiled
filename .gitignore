@@ -10,3 +10,4 @@ gradle.properties
 app/usage.txt
 app/mapping.txt
 /app/debug
+/IOS_UNPACK
